@@ -221,4 +221,4 @@ Explore and build various real-world network configurations and topologies using
 
 **Note**: The configurations listed above provide a solid foundation for exploring advanced networking concepts. They cover a range of scenarios involving **Layer 3 setups** such as routing, NAT, firewalls, and virtualized network functions. These ideas can be further expanded to simulate **Layer 3 switches**, **dynamic routing protocols**, or even **large-scale enterprise networks**. The combination of Linux namespaces, bridges, and IP routing offers endless possibilities for experimentation and learning.
 
-> “Anything you can imagine can happen inside a namespace.”
+> “Long Live Namespaces!”
