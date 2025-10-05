@@ -11,6 +11,7 @@
   - [Configure DHCP](#configure-dhcp)
   - [Cleanup](#cleanup)
 - [Troubleshooting](#troubleshooting)
+- [Potential Future Work](#potential-future-work)
 
 ## Overview
 
@@ -172,3 +173,52 @@ docker rm -f vswitch
 - **DHCP issues:** Verify `/var/lib/dhcp/dhcpd.leases` exists and ensure proper permissions.
 - **Traffic shaping not applied:** Confirm `tc` rules are correctly added (`ip netns exec [ns] tc qdisc show`).
 - **Container not running:** `docker start vswitch` and `docker exec -it /bin/bash vswitch`.
+
+## Potential Future Work
+
+Explore and build various real-world network configurations and topologies using Linux namespaces and bridges. These setups are perfect for learning networking concepts, simulating complex environments, and testing configurations.
+
+1. **Basic Router Setup (Namespace as Router)**  
+   Purpose: Understand packet forwarding, routing tables, and IP forwarding.  
+   - Create three namespaces: `ns1`, `ns2`, `router`.
+   - Connect `ns1` and `ns2` to `router` via `veth` pairs.
+   - Enable IP forwarding in the `router` namespace.
+   - Add routes in `ns1` and `ns2` to send traffic through the router.
+
+2. **NAT (Network Address Translation) Setup**  
+   Purpose: Simulate a private network behind a NAT gateway.  
+   - Create a private namespace connected to a `nat` namespace.
+   - Connect the `nat` namespace to the host’s network.
+   - Enable IP forwarding in the `nat` namespace.
+   - Set up `iptables` for masquerading to allow private IP access to the external network.
+
+3. **Load Balancer Simulation**  
+   Purpose: Test load balancing and understand packet distribution.  
+   - Create `lb` (load balancer) namespace and two backend namespaces `ns1`, `ns2`.
+   - Use a bridge to connect all namespaces.
+   - Run simple web servers in `ns1` and `ns2`.
+   - Use `ip route` with multiple next-hops or set up `iptables` for traffic distribution.
+
+4. **Firewall and Intrusion Detection Simulation**  
+   Purpose: Experiment with firewall rules and monitor traffic.  
+   - Create namespaces for `client`, `firewall`, and `server`.
+   - Route traffic through the `firewall` namespace.
+   - Set up `iptables` rules in the `firewall` namespace to allow/block traffic.
+
+5. **VRF (Virtual Routing and Forwarding) Simulation**  
+   Purpose: Understand VRFs and isolate routing domains.  
+   - Create two namespaces `vrf1`, `vrf2`.
+   - Connect both to a `router` namespace with separate routing tables per VRF.
+
+6. **VXLAN (Virtual Extensible LAN) Setup**  
+   Purpose: Simulate overlay networks across namespaces.  
+   - Create two or more namespaces to act as hosts.  
+   - Use `ip link add vxlan0` to create VXLAN interfaces in each namespace.  
+   - Assign VXLAN IDs (VNIs) to separate overlay networks.  
+   - Connect namespaces using `veth` pairs or bridges and route VXLAN traffic between them.  
+
+---
+
+**Note**: The configurations listed above provide a solid foundation for exploring advanced networking concepts. They cover a range of scenarios involving **Layer 3 setups** such as routing, NAT, firewalls, and virtualized network functions. These ideas can be further expanded to simulate **Layer 3 switches**, **dynamic routing protocols**, or even **large-scale enterprise networks**. The combination of Linux namespaces, bridges, and IP routing offers endless possibilities for experimentation and learning.
+
+> “Anything you can imagine can happen inside a namespace.”
