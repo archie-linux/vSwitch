@@ -171,3 +171,4 @@ docker rm -f vswitch
 - **Permission denied with SSH:** Ensure the root password is set (`passwd`), and `/run/sshd` exists.
 - **DHCP issues:** Verify `/var/lib/dhcp/dhcpd.leases` exists and ensure proper permissions.
 - **Traffic shaping not applied:** Confirm `tc` rules are correctly added (`ip netns exec [ns] tc qdisc show`).
+- **Container not running:** `docker start vswitch` and `docker exec -it /bin/bash vswitch`.

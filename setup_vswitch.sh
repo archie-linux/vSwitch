@@ -5,3 +5,4 @@
 ./assign_dhcp.sh
 ./verify_namespaces.sh
 ./test_connectivity.sh 4 10
+exec /bin/bash
