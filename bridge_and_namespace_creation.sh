@@ -1,32 +1,60 @@
 #!/bin/bash
-set -e
 
-# Create namespaces
-ip netns add ns1
+# Create ns2 first (static IP for service namespace)
 ip netns add ns2
 
 # Create bridge
-ip link add br0 type bridge
+ip link add name br0 type bridge
 ip link set br0 up
 
-# Create veth pairs
-ip link add veth1 type veth peer name veth1-br
+# Create veth2 (ns2) and attach to bridge
 ip link add veth2 type veth peer name veth2-br
-
-# Attach veths to namespaces
-ip link set veth1 netns ns1
 ip link set veth2 netns ns2
 
-# Attach other ends to the bridge
-ip link set veth1-br master br0
+# Attach veth2-br to bridge and bring it up
 ip link set veth2-br master br0
-ip link set veth1-br up
 ip link set veth2-br up
 
-# Assign IPs
-ip netns exec ns1 ip addr add 192.168.1.2/24 dev veth1
+# Configure ns2 with static IP 192.168.1.1
 ip netns exec ns2 ip addr add 192.168.1.1/24 dev veth2
-ip netns exec ns1 ip link set veth1 up
 ip netns exec ns2 ip link set veth2 up
 
-echo "Bridge and namespaces setup complete!"
+# Enable loopback in ns2
+ip netns exec ns2 ip link set lo up
+
+echo "ns2 setup complete with static IP 192.168.1.1"
+
+# Create additional namespaces and veth pairs
+for i in {1..20}; do
+    ns_name="ns$i"
+    
+    # Skip ns2 (already created)
+    if [ "$ns_name" == "ns2" ]; then
+        continue
+    fi
+    
+    echo "Creating namespace: $ns_name"
+    ip netns add "$ns_name"
+
+    # Create veth pairs
+    veth_name="veth$i"
+    veth_br_name="veth$i-br"
+    ip link add "$veth_name" type veth peer name "$veth_br_name"
+
+    # Move veth interface to namespace
+    ip link set "$veth_name" netns "$ns_name"
+
+    # Attach the other side to the bridge
+    ip link set "$veth_br_name" master br0
+    ip link set "$veth_br_name" up
+
+    # Bring up veth in namespace
+    ip netns exec "$ns_name" ip link set "$veth_name" up
+
+    # Enable loopback in namespace
+    ip netns exec "$ns_name" ip link set lo up
+
+    echo "$ns_name setup complete."
+done
+
+echo "Network setup complete."

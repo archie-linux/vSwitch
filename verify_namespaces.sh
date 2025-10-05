@@ -1,16 +1,13 @@
 #!/bin/bash
 
-echo "========== List Namespaces =========="
+echo "========== List of Namespaces =========="
 echo
 ip netns
 echo
 
-echo "========== NS1 Interfaces =========="
-echo
-ip netns exec ns1 ip a
-echo
-
-echo "========== NS2 Interfaces =========="
-echo
-ip netns exec ns2 ip a
-echo
+for i in {1..20}; do
+    echo "========== NS$i Interfaces =========="
+    echo
+    ip netns exec ns$i ip a
+    echo
+done
