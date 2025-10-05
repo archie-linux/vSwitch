@@ -9,9 +9,8 @@
   - [Test Packet Loss](#test-packet-loss)
   - [Test SSH and HTTP](#test-ssh-and-http)
   - [Configure DHCP](#configure-dhcp)
-- [Docker Setup](#docker-setup)
+  - [Cleanup](#cleanup)
 - [Troubleshooting](#troubleshooting)
-- [Cleanup](#cleanup)
 
 ## Overview
 
@@ -42,7 +41,12 @@ docker build -t vswitch .
 
 3. Run the container:
 ```bash
-docker run -it --name vswitch --privileged --network none -v $(pwd):/scripts vswitch /bin/bash
+docker run -it --name vswitch --privileged --network none -v $(pwd):/scripts vswitch /bin/bash -c ./setup_vswitch.sh
+```
+
+4. To interact with the running container from another terminal:
+```bash
+docker exec -it vswitch /bin/bash
 ```
 
 ## Usage
@@ -156,21 +160,14 @@ listening on veth2, link-type EN10MB (Ethernet), snapshot length 262144 bytes
 ...
 </pre>
 
-## Docker Setup
-
-To interact with the running container from another terminal:
-```bash
-docker exec -it vswitch /bin/bash
-```
-
-## Troubleshooting
-- **Permission denied with SSH:** Ensure the root password is set (`passwd`), and `/run/sshd` exists.
-- **DHCP issues:** Verify `/var/lib/dhcp/dhcpd.leases` exists and ensure proper permissions.
-- **Traffic shaping not applied:** Confirm `tc` rules are correctly added (`ip netns exec [ns] tc qdisc show`).
-
 ## Cleanup
 Tear down the namespaces and bridge:
 ```bash
 ./cleanup.sh
 docker rm -f vswitch
 ```
+
+## Troubleshooting
+- **Permission denied with SSH:** Ensure the root password is set (`passwd`), and `/run/sshd` exists.
+- **DHCP issues:** Verify `/var/lib/dhcp/dhcpd.leases` exists and ensure proper permissions.
+- **Traffic shaping not applied:** Confirm `tc` rules are correctly added (`ip netns exec [ns] tc qdisc show`).
